@@ -1,81 +1,69 @@
 #include <iostream>
 #include <vector>
-#include <tuple>
 
-struct QueryDsl
-{
-  template<typename Table>
-  Table from(Table t) {
-    Table result;
-    for(const auto& t : t.tuples) {
-      result.tuples.push_back(t);
+struct QueryDsl {
+  template <typename TableExpr> TableExpr from(TableExpr table_expr) {
+    TableExpr result_tuple;
+    for (const auto &tuple : table_expr.tuples) {
+      result_tuple.tuples.push_back(tuple);
     }
-    return result;
+    return result_tuple;
   }
-  template<typename Table, typename Pred>
-  Table where(Table t, Pred p)
-  {
-    Table result;
-    for(const auto& t : t.tuples) {
-      if(p(t)) {
-        result.tuples.push_back(t);
+
+  // selection
+  template <typename TableExpr, typename Pred>
+  TableExpr where(TableExpr table_expr, Pred p) {
+    TableExpr result_tuple;
+    for (const auto &tuple : table_expr.tuples) {
+      if (p(tuple)) {
+        result_tuple.tuples.push_back(tuple);
       }
     }
-    return result;    
+    return result_tuple;
   }
 
-  template<typename OutTable, typename Table, typename Selector>
-  OutTable select(Table t, Selector s)
-  {
-    OutTable result;
-    for(const auto& t : t.tuples) {
-      result.tuples.push_back(s(t));
+  // projection
+  template <typename OutTableExpr, typename TableExpr, typename Selector>
+  OutTableExpr select(TableExpr table_expr, Selector selector) {
+    OutTableExpr result_tuple;
+    for (const auto &tuple : table_expr.tuples) {
+      result_tuple.tuples.push_back(selector(tuple));
     }
-    return result;
+    return result_tuple;
   }
-
-}; 
+};
 
 int main() {
 
-  struct table
-  {
-    using tuple = struct{int field1; int field2;};
-    std::vector<tuple> tuples;
-    std::ostream& operator<<(std::ostream& os) {
-      os << "eww";
-      return os;
-    }
-  };
-
-  struct table2
-  {
-    using tuple = struct{int field1;};
+  struct table {
+    using tuple = struct {
+      int field1;
+      int field2;
+    };
     std::vector<tuple> tuples;
   };
 
+  struct result_table {
+    using tuple = struct {
+      int field1;
+    };
+    std::vector<tuple> tuples;
+  };
 
   QueryDsl q;
- 
-  auto t = table{
-    {
-     {1,1},
-     {2,2}
-    }
-  };
-  
-  
-  
-  auto t1 = q.from(t);
-  auto t2 = q.where(t1, [](const auto& r) {
-    return r.field1 > 0;
+
+  auto t0_expr = table{{{1, 1}, {2, 2}}};
+
+  auto t1_expr = q.from(t0_expr);
+  auto t2_expr =
+      q.where(t1_expr, [](const auto &tuple) { return tuple.field1 > 0; });
+  auto t3_expr = q.select<result_table>(t2_expr, [](const auto &tuple) {
+    return result_table::tuple{tuple.field1};
   });
-  auto t3 = q.select<table2>(t2, [](const auto& r) {
-    return table2::tuple{r.field1};
-  });
-  for(const auto& t: t3.tuples) {
-    std::cout << t.field1 << std::endl;
+
+  for (const auto &tuple : t3_expr.tuples) {
+    std::cout << tuple.field1 << std::endl;
   }
-  
+
   return 0;
 }
