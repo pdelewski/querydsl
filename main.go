@@ -1,12 +1,11 @@
 package main
 
 import (
-	v4 "querydsl/v4"
+	v1 "querydsl/v1"
+	v2 "querydsl/v2"
 )
 
 func main() {
-	//v1.Program()
-	//v2.Program()
-	//v3.Program()
-	v4.Program()
+	v1.Program()
+	v2.Program()
 }
