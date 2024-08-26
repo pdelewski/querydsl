@@ -34,11 +34,12 @@ func (t table) project(selector func(tuple) tuple) table {
 }
 
 func Program() {
-	t1 := from(table{
+	table1 := table{
 		{1, "a"},
 		{2, "b"},
 		{3, "c"},
-	})
+	}
+	t1 := from(table1)
 
 	t2 := t1.where(func(t tuple) bool {
 		return t.field1 > 1
