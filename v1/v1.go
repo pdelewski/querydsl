@@ -46,7 +46,7 @@ func Program() {
 	})
 
 	t3 := t2.project(func(t tuple) tuple {
-		return tuple{t.field1, t.field2 + "!"}
+		return tuple{t.field1, t.field2}
 	})
 
 	for _, t := range t3 {

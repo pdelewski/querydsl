@@ -11,9 +11,9 @@ type tuple2 struct {
 	field3 string
 }
 
-func where[T any](data []T, predicate func(T) bool) []T {
-	result := make([]T, 0)
-	for _, item := range data {
+func where[Tuple any](table []Tuple, predicate func(Tuple) bool) []Tuple {
+	result := make([]Tuple, 0)
+	for _, item := range table {
 		if predicate(item) {
 			result = append(result, item)
 		}
@@ -21,9 +21,9 @@ func where[T any](data []T, predicate func(T) bool) []T {
 	return result
 }
 
-func project[T any, R any](data []T, mapper func(T) R) []R {
-	result := make([]R, 0, len(data)) // Preallocate with the same length as the input slice
-	for _, item := range data {
+func project[Tuple any, ResultTuple any](table []Tuple, mapper func(Tuple) ResultTuple) []ResultTuple {
+	result := make([]ResultTuple, 0, len(table)) // Preallocate with the same length as the input slice
+	for _, item := range table {
 		result = append(result, mapper(item))
 	}
 	return result
