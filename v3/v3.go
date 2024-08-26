@@ -4,7 +4,10 @@ import (
 	"fmt"
 )
 
-func from(slices ...[]map[string]interface{}) []map[string]interface{} {
+type tuple map[string]interface{}
+type table []map[string]interface{}
+
+func from(slices ...table) table {
 	if len(slices) == 0 {
 		return nil
 	}
@@ -14,7 +17,7 @@ func from(slices ...[]map[string]interface{}) []map[string]interface{} {
 
 	// Combine with each subsequent slice
 	for i := 1; i < len(slices); i++ {
-		var newResult []map[string]interface{}
+		var newResult table
 		for _, r := range result {
 			for _, t := range slices[i] {
 				// Combine two maps into a new one
@@ -32,8 +35,8 @@ func from(slices ...[]map[string]interface{}) []map[string]interface{} {
 }
 
 // copyMap creates a deep copy of a map.
-func copyMap(m map[string]interface{}) map[string]interface{} {
-	copied := make(map[string]interface{})
+func copyMap(m tuple) tuple {
+	copied := make(tuple)
 	for k, v := range m {
 		copied[k] = v
 	}
@@ -41,11 +44,11 @@ func copyMap(m map[string]interface{}) map[string]interface{} {
 }
 
 // where filters a slice of maps based on a predicate function.
-func where(maps []map[string]interface{}, predicate func(key string, value interface{}) bool) []map[string]interface{} {
-	var result []map[string]interface{}
+func where(maps table, predicate func(key string, value interface{}) bool) table {
+	var result table
 
 	for _, m := range maps {
-		newMap := make(map[string]interface{})
+		newMap := make(tuple)
 		for k, v := range m {
 			if predicate(k, v) {
 				newMap[k] = v
@@ -60,8 +63,8 @@ func where(maps []map[string]interface{}, predicate func(key string, value inter
 }
 
 // projection applies a transformation function to each map in the slice.
-func projection(maps []map[string]interface{}, selector func(map[string]interface{}) map[string]interface{}) []map[string]interface{} {
-	var result []map[string]interface{}
+func projection(maps table, selector func(tuple) tuple) table {
+	var result table
 
 	for _, m := range maps {
 		result = append(result, selector(m))
@@ -72,17 +75,17 @@ func projection(maps []map[string]interface{}, selector func(map[string]interfac
 
 func Program() {
 	// Example data
-	table1 := []map[string]interface{}{
+	table1 := table{
 		{"field1": 1},
 		{"field1": 2},
 	}
 
-	table2 := []map[string]interface{}{
+	table2 := table{
 		{"field2": "one"},
 		{"field2": "two"},
 	}
 
-	table3 := []map[string]interface{}{
+	table3 := table{
 		{"field3": 3.14},
 		{"field3": 2.71},
 	}
@@ -97,8 +100,8 @@ func Program() {
 	})
 
 	// Project maps to include only specific columns
-	table6 := projection(table5, func(m map[string]interface{}) map[string]interface{} {
-		result := make(map[string]interface{})
+	table6 := projection(table5, func(m tuple) tuple {
+		result := make(tuple)
 		if val, ok := m["field1"]; ok {
 			result["field1"] = val
 		}
