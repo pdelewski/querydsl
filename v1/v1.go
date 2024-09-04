@@ -39,6 +39,9 @@ func Program() {
 		{2, "b"},
 		{3, "c"},
 	}
+
+	table1 = append(table1, tuple{4, "d"})
+
 	t1 := from(table1)
 
 	t2 := t1.where(func(t tuple) bool {
